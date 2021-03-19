@@ -30,6 +30,12 @@ todo:
 * web / mobile support
 * try it with people and see how it works :)
 
+start todo:
+
+* pages and links , research zoomable libraries and tech and trees with example test and links
+* use react and eventually rust (for now?)
+* use actual translation
+
 technology
 
 Best to use a safe and popular language and framework, so 

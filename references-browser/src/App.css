@@ -1,0 +1,36 @@
+.Chapter {
+  background-color: white;
+  /*width: 29%;*/
+  width: 100%;
+  float: left;
+  border: 1px solid black;
+  height: 1500px;
+  border-radius: 2px;
+  margin-right: 20%
+
+}
+
+.Chapter-name {
+	height: 42px;
+	font-size: 24px;
+}
+.Verse {
+	/*height: 24px;*/
+	font-size: 15px;
+  width: 100%;
+  /*overflow: sc;*/
+}
+
+.Level {
+  font-size: 24px;
+  border: 1px solid black;
+}
+
+.Browser {
+  width: 5000px;
+}
+
+.columns {
+  float: left;
+  width: 1000px;
+}
