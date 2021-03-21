@@ -213,13 +213,12 @@ function ChapterView(props: ChapterProps) {
   var verseViews = [];
   var i = 0;
   for(var verse of chapter.verses) {
-    // console.log(verse);
     // a.1 -> a.1.1
     let references = data.references[chapterId + '.' + (i + 1)] || [];
     let isReferencedVerse = referencedVerses !== undefined && referencedVerses.has(i + 1);
-    // console.log(references);
-    // let props = {textverse: verse, references: references};
-    verseViews.push(<Verse textverse={verse} references={references} data={data} lineNumber={i + 1} chapterId={chapterId} isSelectedVerse={selectedVerse === i + 1} isReferencedVerse={isReferencedVerse} openChapters={openChapters} key={i} />);
+    if (chapterMode === ChapterMode.Maximized || (chapterMode === ChapterMode.MinimizedToVerse && (selectedVerse === i + 1 || isReferencedVerse)) ) { //isReferencedVerse ||)
+      verseViews.push(<Verse textverse={verse} references={references} data={data} lineNumber={i + 1} chapterId={chapterId} isSelectedVerse={selectedVerse === i + 1} isReferencedVerse={isReferencedVerse} openChapters={openChapters} key={i} />);
+    }
     i += 1;
   }
   var options = [];
