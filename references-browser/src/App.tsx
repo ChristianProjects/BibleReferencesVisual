@@ -7,6 +7,145 @@ import scriptureContentAndReferencesKJV from './kjv_and_references.json';
 //   export default value;
 // }
 
+const BOOK_NAMES = [   
+    "Genesis",
+    "Exodus",
+    "Leviticus",
+    "Numbers",
+    "Deuteronomy",
+    "Joshua",
+    "Judges",
+    "Ruth",
+    "1 Samuel",
+    "2 Samuel",
+    "1 Kings",
+    "2 Kings",
+    "1 Chronicles",
+    "2 Chronicles",
+    "Ezra",
+    "Nehemiah",
+    "Esther",
+    "Job",
+    "Psalms",
+    "Proverbs",
+    "Ecclesiastes",
+    "Song of Solomon",
+    "Isaiah",
+    "Jeremiah",
+    "Lamentations",
+    "Ezekiel",
+    "Daniel",
+    "Hosea",
+    "Joel",
+    "Amos",
+    "Obadiah",
+    "Jonah",
+    "Micah",
+    "Nahum",
+    "Habakkuk",
+    "Zephaniah",
+    "Haggai",
+    "Zechariah",
+    "Malachi",
+    "Matthew",
+    "Mark",
+    "Luke",
+    "John",
+    "Acts",
+    "Romans",
+    "1 Corinthians",
+    "2 Corinthians",
+    "Galatians",
+    "Ephesians",
+    "Philippians",
+    "Colossians",
+    "1 Thessalonians",
+    "2 Thessalonians",
+    "1 Timothy",
+    "2 Timothy",
+    "Titus",
+    "Philemon",
+    "Hebrews",
+    "James",
+    "1 Peter",
+    "2 Peter",
+    "1 John",
+    "2 John",
+    "3 John",
+    "Jude",
+    "Revelation"
+];
+// array based on transforming the file `key_english.json` in `bible-database` repo
+
+const BOOK_ABBREVIATIONS = [
+    "Gen",
+    "Exod",
+    "Lev",
+    "Num",
+    "Deut",
+    "Josh",
+    "Judg",
+    "Ruth",
+    "1Sam",
+    "2Sam",
+    "1Kgs",
+    "2Kgs",
+    "1Chr",
+    "2Chr",
+    "Ezra",
+    "Neh",
+    "Esth",
+    "Job",
+    "Ps",
+    "Prov",
+    "Eccl",
+    "Song",
+    "Isa",
+    "Jer",
+    "Lam",
+    "Ezek",
+    "Dan",
+    "Hos",
+    "Joel",
+    "Amos",
+    "Obad",
+    "Jonah",
+    "Mic",
+    "Nah",
+    "Hab",
+    "Zeph",
+    "Hag",
+    "Zech",
+    "Mal",
+    "Matt",
+    "Mark",
+    "Luke",
+    "John",
+    "Acts",
+    "Rom",
+    "1Cor",
+    "2Cor",
+    "Gal",
+    "Eph",
+    "Phil",
+    "Col",
+    "1Thess",
+    "2Thess",
+    "1Tim",
+    "2Tim",
+    "Titus",
+    "Phlm",
+    "Heb",
+    "Jas",
+    "1Pet",
+    "2Pet",
+    "1John",
+    "2John",
+    "3John",
+    "Jude",
+    "Rev"
+];
+
 interface Chapter {
   name: string;
   book: string;
@@ -32,7 +171,8 @@ interface State {
   chapterModes: {[a: string]: ChapterMode},
   mode: ChapterMode,
   selectedVerses: {[a: string]: number},
-  referencedVerses: {[a: string]: Set<number>}
+  referencedVerses: {[a: string]: Set<number>},
+  rootChapter: string
 }
 
 var testContentAndReferences: ScriptureContentAndReferencesFormat = {
@@ -92,8 +232,8 @@ function App() {
     <div className="App">
       <header className="App-header">
           <h1>
-	    Bible references
-	  </h1>
+	          Bible references
+	        </h1>
 	  <BrowserView data={scriptureContentAndReferencesKJV}></BrowserView>
       </header>
     </div>
@@ -127,18 +267,40 @@ interface VerseProps {
   openChapters: (chapterId: string, lineNumbers: number, chapters: string[]) => void
 };
 
+interface OptionsProps {
+  query: string,
+  onSearch: (query: string) => void
+}
 
-var state: State = {
+var state_first: State = {
   openChapters: {'Ps.22': 0},
   levelChapters: [['Ps.22']],
   chapterModes: {'Ps.22': ChapterMode.Maximized},
   mode: ChapterMode.Maximized,
   selectedVerses: {},
-  referencedVerses: {}
+  referencedVerses: {},
+  rootChapter: 'Ps.22'
 };
 
-// 
-function Verse(props: VerseProps) { //text: string) {
+function generateState(rootChapter: string): State {
+  var state: State = {
+    openChapters: {},
+    levelChapters: [[rootChapter]],
+    chapterModes: {},
+    mode: ChapterMode.Maximized,
+    selectedVerses: {},
+    referencedVerses: {},
+    rootChapter: rootChapter
+  };
+  state.openChapters[rootChapter] = 0;
+  state.chapterModes[rootChapter] = ChapterMode.Maximized;
+  return state;
+}
+
+var state = generateState('Ps.22');
+
+
+function Verse(props: VerseProps) {
   let text = props.textverse;
   let references = props.references;
   let data = props.data;
@@ -254,7 +416,71 @@ function ChapterView(props: ChapterProps) {
    );
 }
 
-    	  
+function chapterForQuery(query: string, data: ScriptureContentAndReferencesFormat): string | undefined {
+  if (data.chapters[query] !== undefined) {
+    return query;
+  } else {
+    // Psalm 22 -> Ps.22
+    let tokens = query.split(/[ ]/);
+    var chapterQuery = tokens[0];
+    var countQuery = 1;
+    // console.log(tokens);
+    if (tokens.length >= 2) {
+      try {
+        countQuery = parseInt(tokens[1]);
+        if (isNaN(countQuery)) {
+          countQuery = 1;
+        }
+      } catch {
+        countQuery = 1; // default count: Ps.1
+      }
+    }
+
+    var i = 0;
+    for (var name of BOOK_NAMES) {
+      // console.log(name, chapterQuery, countQuery);
+      if (name.slice(0, chapterQuery.length) === chapterQuery) {
+        // console.log(BOOK_ABBREVIATIONS[i] + '.' + countQuery);
+        return BOOK_ABBREVIATIONS[i] + '.' + countQuery;
+      }
+      i += 1;
+    }
+    return undefined;
+  }
+}
+
+function Options(props: OptionsProps) {
+  // let chapterMode = props.chapterMode;
+  // let setChapterMode = props.chapterMode;
+  let query = props.query;
+  let onSearch = props.onSearch;
+
+  // return (
+    // <div class="Options">
+      // <form>
+        // <label htmlFor="options_chapter_mode"> Chapter Mode </label>
+        // <input type="checkbox" name="options_chapter_mode" checked={}
+
+
+  let onReady = (event: any) => {
+    console.log('Ready')
+    event.preventDefault();
+    event.stopPropagation();
+    let query = event.target.childNodes[0].value;
+    console.log(query);
+    onSearch(query);
+  }
+
+  return (
+    <div className="Options">
+      <form onSubmit={onReady}>
+        <input type="text" defaultValue={query}/>
+        <input type="submit" value="search" />
+      </form>
+    </div>
+  );
+}
+
 // reference browser
 function BrowserView(props: {data: ScriptureContentAndReferencesFormat}) {
   // debugger;
@@ -294,8 +520,7 @@ function BrowserView(props: {data: ScriptureContentAndReferencesFormat}) {
     setState((oldState) => newState);
   }
 
-  console.log('browser view');
- 
+  console.log('browser view');   
 
   var levels = [];
   var i = 0;
@@ -309,17 +534,40 @@ function BrowserView(props: {data: ScriptureContentAndReferencesFormat}) {
       let referencedVerses = stateVariable.referencedVerses[chapter];
       chapters.push(<ChapterView chapter={data.chapters[chapter]} chapterId={chapter} data={data} chapterMode={mode} openChapters={openChapters} changeMode={changeMode} selectedVerse={selectedVerse} referencedVerses={referencedVerses} key={chapter} />)
     }
+    // <div>Level {i}</div>
+      
     levels.push(<div className="Level columns">
-      <div>Level {i}</div>
       <div>{chapters}</div>
     </div>);
     i += 1;
   }
+
+  // let setChapterMode = (chapterMode: ChapterMode) => {
+  //   var newState = {...stateVariable} || state;
+  //   newState.chapterMode = chapterMode;
+  //   for (var chapter in newState.chapterModes) {
+  //     newState.chapterModes[chapter] = chapterMode;
+  //   }
+  //   setState((oldState) => newState);
+  // }
+
+  let onSearch = (query: string) => {
+    let newRootChapter = chapterForQuery(query, data);
+    var newState = {...stateVariable} || state;
+    if (newRootChapter !== undefined) {
+      newState = generateState(newRootChapter);
+    }
+    setState((oldState) => newState);
+  }
+  let options = <Options query={stateVariable.rootChapter} onSearch={onSearch} />; //chapterMode={stateVariable.chapterMode} setChapterMode={}
   return (
     <div className='Browser'>
+      {options}
       {levels}
     </div>
   );
 }
 
 export default App;
+
+
