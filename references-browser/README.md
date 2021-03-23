@@ -17,7 +17,7 @@ From that "root" chapter you can start clicking on verses and then in right clic
 
 You can also minimize/maximize using the texts in the top right corner of chapters.
 
-[]
+![a screenshot showing Psalm 22:28 referencing Matthew 6:13 and other chapters, and Matthew 6:14 referencing more verses](screenshots/screen.png "a screenshot showing Psalm 22:28 referencing Matthew 6:13 and other chapters, and Matthew 6:14 referencing more verses" )
 
 dependencies
 ------------
