@@ -2,7 +2,7 @@ Bible reference browser
 --------------------------
 
 
-Praise God and we thank him for the Holy Word!
+Praise God and we thank Him for the Holy Word!
 
 
 This is a project for browsing the Bible based on references.
