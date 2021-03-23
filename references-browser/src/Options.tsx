@@ -34,6 +34,9 @@ function Options(props: OptionsProps) {
         <input type="text" defaultValue={query}/>
         <input type="submit" value="search" />
       </form>
+      <div className="translation">
+        King James Version
+      </div>
     </div>
   );
 }
