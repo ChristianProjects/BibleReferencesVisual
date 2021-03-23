@@ -1,0 +1,9 @@
+.Options form {
+  margin-left: 40vw;
+}
+
+.Options input[type=text] {
+  width: 200px;
+  height: 20px;
+  font-size: 15px;
+}

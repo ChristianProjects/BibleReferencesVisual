@@ -1,0 +1,26 @@
+.Verse {
+	font-size: 15px;
+  width: 100%;
+}
+
+.lineNumber {
+  float: left;
+  width: 25px;
+  font-size: 14px;
+}
+
+.selected-verse {
+  /*background-color: red;*/
+  color: green !important;
+  font-weight: bold;
+
+}
+
+.referenced-verse {
+  /*background-color: orange;*/
+  /*background-color: yellow;*/
+  color: blue;
+  font-weight: bold;
+  /*color: black;*/
+}
+
